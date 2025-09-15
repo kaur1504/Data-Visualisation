@@ -1,0 +1,117 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+data=pd.read_csv('/content/drive/MyDrive/Charts on Netflix Data/netflix_titles.csv')
+data['year_added'] = data['date_added'].str.slice(start=-4)
+n_data_added = data.groupby(['year_added', 'type'], as_index=False).show_id.count()
+n_data_added.columns = ['year_added', 'type', 'count']
+n_data_added = n_data_added.pivot(index='year_added', columns='type', values='count').reset_index()
+n_data_added.fillna(0, inplace = True)
+n_data_added.head()
+labels = n_data_added['year_added']
+
+x = np.arange(len(labels))  # the label locations
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+Movies_rects = ax.bar(x - width/2, n_data_added['Movie'], width, label='Movies') # Add color here
+TVshows_rects = ax.bar(x + width/2, n_data_added['TV Show'], width, label='TV Show')
+
+# Add some text for labels, title, configure chart size
+ax.set_xlabel('Year added on Netflex')
+ax.set_ylabel('Count of Number of Movies/TV Shows')
+ax.set_title('Number of movies and TV Shows by year they got added')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+fig.set_size_inches(18.5, 10.5)
+plt.rcParams.update({'font.size': 15})
+ax.legend()
+
+ #Function to generate labels on top of the bars
+def gen_label(rects):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+
+gen_label(Movies_rects)
+gen_label(TVshows_rects)
+
+fig.tight_layout()
+plt.show()
+data = pd.DataFrame(dict(Year = n_data_added['year_added'],
+                       Movie = n_data_added['Movie'], TVshow=n_data_added['TV Show']))
+
+ind = np.arange(len(data))
+width = 0.4
+
+fig1, ax1 = plt.subplots()
+ax1.barh(ind, data.Movie, width, color='red', label='Movies')
+ax1.barh(ind + width, data.TVshow, width, color='green', label='TV Shows')
+
+ax1.set(yticks=ind + width, yticklabels=data.Year, ylim=[2*width - 1, len(data)])
+
+ax1.set_ylabel('Year added on Netflex')
+ax1.set_xlabel('Count of Number of Movies/TV Shows')
+ax1.set_title('Number of movies and TV Shows by year they got added')
+
+ax1.legend()
+fig1.set_size_inches(10, 10)
+plt.show()
+
+data = pd.DataFrame(dict(Year = n_data_added['year_added'],
+                       Movie = n_data_added['Movie'], TVshow=n_data_added['TV Show']))
+
+ind = np.arange(len(data))
+width = 0.4
+
+fig1, ax1 = plt.subplots()
+ax1.barh(ind, data.Movie, width, color='red', label='Movies')
+ax1.barh(ind, data.TVshow, width, color='green', label='TV Shows')
+
+ax1.set(yticks=ind + width, yticklabels=data.Year, ylim=[2*width - 1, len(data)])
+
+ax1.set_ylabel('Year added on Netflex')
+ax1.set_xlabel('Count of Number of Movies/TV Shows')
+ax1.set_title('Number of movies and TV Shows by year they got added')
+
+ax1.legend()
+fig1.set_size_inches(10, 10)
+plt.show()
+n_data_added['Total'] = n_data_added['Movie'] + n_data_added['TV Show']
+# To select last few rows only
+n_data_added_flt = n_data_added[-4:]
+n_data_added_flt = n_data_added_flt.reset_index(drop=True) # For resetting index
+n_data_added_flt.head()
+labels = n_data_added_flt['year_added']
+sizes = n_data_added_flt['Total']
+explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice
+
+fig2, ax2 = plt.subplots()
+ax2.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+plt.show()
+labels = n_data_added_flt['year_added']
+sizes = n_data_added_flt['Total']
+explode = (0.1, 0.1, 0.1, 0.1)  # "explode" all the slices
+
+fig2, ax2 = plt.subplots()
+ax2.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90, pctdistance=0.85) # Adjust font location
+
+#draw circle and convert pie chart to Donut Chart
+centre_circle = plt.Circle((0,0),0.70,fc='white')
+fig2 = plt.gcf()
+fig2.gca().add_artist(centre_circle)
+
+# Equal aspect ratio ensures that pie is drawn as a circle
+ax2.axis('equal')
+plt.tight_layout()
+plt.show()
