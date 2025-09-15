@@ -1,0 +1,42 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+data=pd.read_csv('/content/drive/MyDrive/Charts Code/Heart_failure_clinical_records_dataset.csv')
+data.head()
+agg_data = data.groupby(['age', 'DEATH_EVENT'], as_index=False).ejection_fraction.count()
+agg_data.columns = ['Age', 'Death_Event', 'Count']
+agg_data.head()
+sns.relplot(x="Age", y="Count",
+            hue="Death_Event" , aspect=16/9,
+            kind="line", data=agg_data);
+sns.relplot(x="serum_creatinine", y="ejection_fraction",
+            hue="DEATH_EVENT", kind="scatter", # Kind is optional
+            data=data, aspect=16/9);
+sns.relplot(x="serum_creatinine", y="ejection_fraction",
+            hue="DEATH_EVENT", kind="scatter", # Kind is optional
+            style="smoking",
+            data=data, aspect=16/9);
+agg_data2 = data.groupby(['age', 'ejection_fraction'], as_index=False).DEATH_EVENT.sum()
+agg_data2.columns = ['Age', 'ejection_fraction', 'Deaths']
+agg_data2_p = agg_data2.pivot(index='Age', columns='ejection_fraction', values='Deaths')
+agg_data2_p.fillna(0, inplace=True)
+agg_data2_p.head(20)
+plt.subplots(figsize=(20,15))
+sns.heatmap(agg_data2_p, annot=True)
+plt.show()
+subset = data.iloc[:,[0,1,2,3,4]]
+subset.head()
+sns.pairplot(subset)
+from bokeh.plotting import figure, output_file, show
+
+p = figure(title = "Age Vs Ejection Fraction")
+p.xaxis.axis_label = 'Age'
+p.yaxis.axis_label = 'Ejection Fraction'
+
+p.circle(agg_data2["Age"], agg_data2["ejection_fraction"],
+         fill_alpha=0.2, size=10)
+
+output_file("test.html", title="Example")
+
+show(p)
