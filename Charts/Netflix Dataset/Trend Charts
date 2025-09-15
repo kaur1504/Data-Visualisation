@@ -1,0 +1,21 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+data=pd.read_csv('/content/drive/MyDrive/netflix_titles.csv')
+n_data=data.groupby(['release_year','type'], as_index=False).show_id.count()
+n_data.columns = ['release_year', 'type', 'count']
+n_data_pivot = n_data.pivot(index='release_year', columns='type', values='count').reset_index()
+n_data_pivot.fillna(0, inplace = True)
+n_data_pivot.head()
+#  Declare a chart with one Axis
+fig, ax = plt.subplots()
+# Creating some  dummy data
+ax.plot(n_data_pivot.release_year, n_data_pivot.Movie, label = 'Movies')
+ax.plot(n_data_pivot.release_year, n_data_pivot['TV Show'], label = 'Tv Shows')
+ax.set_ylabel('Number of Movies/TV Shows')
+ax.set_xlabel('Year of Release')
+ax.set_title("Trend Chart")
+plt.text(x=1970, y=400, s=r'Majority Movies are released after 2000 and Tv Shows mostly after 2010')#, fontsize = 12)
+fig.set_size_inches(18.5, 10.5)
+plt.grid()
+ax.legend()
